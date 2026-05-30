@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>card2me — Digital Business Cards</title>
+<title>card2me — Digital Contact Cards</title>
+<link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
 <style>
   :root {
     --bg: #0f1115;
@@ -573,50 +574,15 @@ function buildVCF(c) {
 async function downloadVCF(c) {
 
   const vcf = buildVCF(c);
-  // Using text/x-vcard for better Android compatibility
-  const vcardBlob = new Blob([vcf], { type: "text/x-vcard;charset=utf-8" });
-  const fileName = "contact.vcf";
-
-  // MOBILE: Priority 1 - Web Share API
-  if (navigator.share) {
-    const file = new File([vcardBlob], fileName, { type: "text/x-vcard" });
-    try {
-      await navigator.share({
-        files: [file],
-        title: "Save Contact",
-      });
-      return;
-    } catch (err) {
-      // If user cancels or share fails, it falls through to download
-    }
-  }
-
-  // FALLBACK: Standard Download
+  const vcardBlob = new Blob([vcf], { type: "text/vcard;charset=utf-8" });
+  const name = [c.firstName, c.lastName].filter(Boolean).join("_") || "contact";
+  const fileName = `${name}.vcf`;
   const url = window.URL.createObjectURL(vcardBlob);
   const link = document.createElement("a");
   link.href = url;
   link.setAttribute("download", fileName);
   link.click();
-
-  // Clean up
   setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-  /*
-  const vcf = buildVCF(c);
-  const blob = new Blob([vcf], { type: "text/vcard" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  const name = [c.firstName, c.lastName].filter(Boolean).join("_") || "contact";
-
-  a.href = url;
-  a.download = `${name}.vcf`;
-  a.style.display = "none";
-
-  document.body.appendChild(a);
-  console.log(a);
-  a.click();
-  document.body.removeChild(a);
-
-  setTimeout(() => URL.revokeObjectURL(url), 2000);*/
 }
 
 /* ------------ views ------------ */
