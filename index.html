@@ -87,6 +87,53 @@
     padding: 24px 20px 40px;
   }
 
+  body.center-view {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  body.center-view .wrap {
+    width: 100%;
+    padding: 24px 20px;
+  }
+
+  .create-hero {
+    text-align: center;
+    margin: 0 0 22px;
+    padding: 0 8px;
+  }
+  .create-hero h1 {
+    margin: 0;
+    font-size: clamp(34px, 6vw, 52px);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.05;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 25%, var(--accent-3) 50%, var(--accent-4) 75%, var(--accent) 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    animation: shine 30s linear infinite;
+    filter: drop-shadow(0 6px 24px rgba(184,108,255,0.25));
+  }
+  .create-hero .hero-emoji {
+    display: inline-block;
+    font-size: 0.85em;
+    margin-right: 8px;
+    transform-origin: 70% 70%;
+    animation: wiggle 2.4s ease-in-out infinite;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
+  }
+  .create-hero .tagline {
+    margin: 10px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .create-hero .tagline b {
+    color: var(--text);
+    font-weight: 600;
+  }
+
 
   .panel {
     position: relative;
@@ -363,13 +410,14 @@
   }
 </style>
 </head>
-<body>
+<body class="center-view">
 <div class="wrap">
   <!-- CREATE VIEW -->
+  <header id="create-hero" class="create-hero" hidden>
+    <h1>card2me</h1>
+    <p class="tagline">Create a digital contact card in seconds — just a shareable link, no sign-up, no server.</p>
+  </header>
   <section id="create-view" class="panel" hidden>
-    <h2>Create your card</h2>
-    <p class="subtitle">Fill in your details and get a shareable link. No sign-up, no server.</p>
-
     <form id="card-form" autocomplete="off">
       <div class="grid">
         <div>
@@ -400,7 +448,7 @@
 
         <div>
           <label for="phone">Phone</label>
-          <input id="phone" name="phone" type="tel" placeholder="+1 555 123 4567" />
+          <input id="phone" name="phone" type="tel" placeholder="+34 987654321" />
         </div>
         <div>
           <label for="email">Email</label>
@@ -433,7 +481,6 @@
   <!-- CARD VIEW -->
   <section id="card-view" class="panel card" hidden>
     <div class="card-header">
-      <span class="card-corner">Contact</span>
       <div id="avatar" class="avatar"></div>
       <div class="card-identity">
         <h2 id="fullName" class="name"></h2>
@@ -544,6 +591,8 @@ function downloadVCF(c) {
 function show(id) {
   document.getElementById('create-view').hidden = id !== 'create';
   document.getElementById('card-view').hidden   = id !== 'card';
+  const hero = document.getElementById('create-hero');
+  if (hero) hero.hidden = id !== 'create';
 }
 
 function renderCard(c) {
