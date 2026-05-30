@@ -12,10 +12,29 @@
     --text: #e8eaf0;
     --muted: #9aa3b2;
     --accent: #6c8cff;
-    --accent-2: #8a6cff;
+    --accent-2: #b86cff;
+    --accent-3: #ff6cc7;
+    --accent-4: #ffd86c;
     --border: #262b36;
     --shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
     --radius: 16px;
+  }
+
+  @keyframes float-blob {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(20px, -20px) scale(1.08); }
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-3deg); }
+    50%      { transform: rotate(3deg); }
+  }
+  @keyframes pop-in {
+    0%   { opacity: 0; transform: translateY(10px) scale(.98); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes shine {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
   }
 
   * { box-sizing: border-box; }
@@ -24,62 +43,93 @@
     margin: 0;
     padding: 0;
     min-height: 100%;
-    background:
-      radial-gradient(1200px 600px at 10% -10%, rgba(108,140,255,0.18), transparent 60%),
-      radial-gradient(900px 500px at 100% 0%, rgba(138,108,255,0.15), transparent 60%),
-      var(--bg);
+  }
+  body {
+    min-height: 100vh;
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    background:
+      radial-gradient(900px 500px at 10% -10%, rgba(108,140,255,0.22), transparent 60%),
+      radial-gradient(700px 420px at 100% 0%, rgba(184,108,255,0.20), transparent 60%),
+      radial-gradient(700px 500px at 50% 110%, rgba(255,108,199,0.16), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  body::before, body::after {
+    content: "";
+    position: fixed;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: .35;
+    pointer-events: none;
+    z-index: -1;
+    animation: float-blob 12s ease-in-out infinite;
+  }
+  body::before {
+    top: -80px; left: -80px;
+    background: radial-gradient(circle, var(--accent), transparent 70%);
+  }
+  body::after {
+    bottom: -100px; right: -80px;
+    background: radial-gradient(circle, var(--accent-3), transparent 70%);
+    animation-delay: -6s;
   }
 
   .wrap {
     max-width: 720px;
     margin: 0 auto;
-    padding: 48px 20px 80px;
+    padding: 24px 20px 40px;
   }
 
-  header.brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 28px;
-  }
-  .logo {
-    width: 36px; height: 36px; border-radius: 10px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    box-shadow: var(--shadow);
-  }
-  .brand h1 {
-    font-size: 20px; margin: 0; letter-spacing: 0.2px;
-  }
-  .brand small { color: var(--muted); margin-left: 6px; }
 
   .panel {
+    position: relative;
     background: linear-gradient(180deg, var(--panel), var(--panel-2));
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 28px;
+    padding: 22px 24px;
     box-shadow: var(--shadow);
+    animation: pop-in .35s ease-out;
+  }
+  .panel::before {
+    content: "";
+    position: absolute; inset: -1px;
+    border-radius: calc(var(--radius) + 1px);
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(108,140,255,0.5), rgba(255,108,199,0.4), rgba(255,216,108,0.35));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    pointer-events: none;
+    opacity: .7;
   }
 
-  h2 { margin: 0 0 6px; font-size: 22px; }
-  .subtitle { color: var(--muted); margin: 0 0 22px; font-size: 14px; }
+  h2 { margin: 0 0 4px; font-size: 20px; }
+  .subtitle { color: var(--muted); margin: 0 0 16px; font-size: 13px; }
 
   form .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 14px 14px;
+    gap: 10px 12px;
   }
   form .full { grid-column: 1 / -1; }
+  form .photo-cell { grid-row: span 2; display: flex; flex-direction: column; align-items: center; }
+  form .photo-cell label { align-self: center; padding-left: 0px; }
 
   label {
     display: block;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--muted);
-    margin-bottom: 6px;
-    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+    letter-spacing: 0.4px;
     text-transform: uppercase;
+    padding-left: 12px;
   }
   input[type=text], input[type=email], input[type=tel], input[type=url], textarea {
     width: 100%;
@@ -87,29 +137,61 @@
     color: var(--text);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 15px;
+    padding: 9px 12px;
+    font-size: 14px;
     outline: none;
-    transition: border-color .15s, box-shadow .15s;
+    transition: border-color .15s, box-shadow .15s, transform .15s;
   }
-  textarea { resize: vertical; min-height: 80px; }
+  textarea { resize: vertical; min-height: 56px; }
   input:focus, textarea:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(108,140,255,0.18);
   }
+  input:hover:not(:focus), textarea:hover:not(:focus) {
+    border-color: #3a4256;
+  }
 
-  .file-row {
-    display: flex; align-items: center; gap: 12px;
+  /* Photo picker: the preview circle IS the button */
+  .photo-picker {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 100px;
+    display: flex; align-items: center; justify-content: center;
+    grid-row: span 2;
   }
-  .file-row .preview {
-    width: 56px; height: 56px; border-radius: 50%;
-    background: #11141b; border: 1px solid var(--border);
+  .photo-picker input[type=file] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer;
+    width: 100%; height: 100%;
+    z-index: 2;
+  }
+  .photo-picker .preview {
+    width: 100px; height: 100px; border-radius: 50%;
+    background: #11141b;
+    border: 1px dashed rgba(108,140,255,0.5);
     background-size: cover; background-position: center;
+    position: relative;
+    transition: transform .2s, border-color .2s, box-shadow .2s;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
   }
-  input[type=file] { color: var(--muted); font-size: 13px; }
+  .photo-picker .preview::after {
+    content: "📷";
+    font-size: 32px; opacity: .7;
+    transition: transform .3s;
+    margin-top: -14px
+  }
+  .photo-picker .preview.has-photo::after { content: ""; }
+  .photo-picker:hover .preview {
+    border-color: var(--accent);
+    border-style: solid;
+    box-shadow: 0 0 0 4px rgba(108,140,255,0.15);
+  }
 
   .actions {
-    margin-top: 24px;
+    margin-top: 18px;
     display: flex; gap: 10px; justify-content: flex-end;
   }
   button, .btn {
@@ -117,68 +199,131 @@
     border: 1px solid var(--border);
     background: #11141b;
     color: var(--text);
-    padding: 12px 18px;
+    padding: 10px 16px;
     font-size: 14px;
     font-weight: 500;
     border-radius: 10px;
     cursor: pointer;
-    transition: transform .05s ease, border-color .15s, background .15s;
+    transition: transform .15s cubic-bezier(.34,1.56,.64,1), border-color .15s, background .15s, box-shadow .2s;
     text-decoration: none;
     display: inline-flex; align-items: center; gap: 8px;
   }
-  button:hover, .btn:hover { border-color: #3a4256; }
-  button:active { transform: translateY(1px); }
+  button:hover, .btn:hover { border-color: #3a4256; transform: translateY(-1px); }
+  button:active { transform: translateY(1px) scale(.98); }
   button.primary, .btn.primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    position: relative;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2), var(--accent-3));
+    background-size: 200% 200%;
     border-color: transparent;
     color: white;
     box-shadow: 0 6px 20px rgba(108,140,255,0.35);
+    transition: transform .15s cubic-bezier(.34,1.56,.64,1), box-shadow .25s, background-position .4s;
+  }
+  button.primary:hover, .btn.primary:hover {
+    background-position: 100% 50%;
+    box-shadow: 0 10px 28px rgba(184,108,255,0.45);
+    transform: translateY(-2px);
   }
 
-  /* Card view */
+  /* Card view — styled like a physical contact card */
   .card {
-    text-align: center;
-    padding: 36px 28px 28px;
-  }
-  .card .avatar {
-    width: 112px; height: 112px; border-radius: 50%;
-    margin: 0 auto 18px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 40px; font-weight: 600; color: white;
-    background-size: cover; background-position: center;
-    box-shadow: var(--shadow);
+    padding: 0;
     overflow: hidden;
   }
-  .card .name { font-size: 26px; font-weight: 600; margin: 0; }
-  .card .title { color: var(--muted); margin-top: 4px; }
-  .card .company { color: var(--muted); margin-top: 2px; font-size: 14px; }
+  .card-header {
+    position: relative;
+    padding: 28px 28px 22px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background:
+      radial-gradient(circle at 0% 0%, rgba(108,140,255,0.35), transparent 60%),
+      radial-gradient(circle at 100% 100%, rgba(255,108,199,0.30), transparent 60%),
+      linear-gradient(135deg, rgba(108,140,255,0.18), rgba(184,108,255,0.12), rgba(255,108,199,0.18));
+    border-bottom: 1px solid var(--border);
+  }
+  .card-header::after {
+    content: "";
+    position: absolute; left: 0; right: 0; bottom: -1px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(108,140,255,0.6), rgba(255,108,199,0.6), transparent);
+  }
+  .card-corner {
+    position: absolute;
+    top: 14px; right: 18px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: .8;
+  }
+  .card .avatar {
+    width: 96px; height: 96px; border-radius: 50%;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; font-weight: 600; color: white;
+    background-size: cover; background-position: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 0 4px rgba(255,255,255,0.06);
+    overflow: hidden;
+  }
+  .card-identity { min-width: 0; flex: 1; }
+  .card .name {
+    font-size: 24px; font-weight: 700; margin: 0;
+    letter-spacing: 0.2px;
+    word-break: break-word;
+  }
+  .card .title { color: var(--text); opacity: .9; margin-top: 4px; font-size: 14px; font-weight: 500; }
+  .card .company { color: var(--muted); margin-top: 2px; font-size: 13px; }
+
+  .card-body { padding: 22px 28px 24px; }
 
   .info {
-    margin-top: 22px;
+    margin-top: 0;
     display: grid;
-    gap: 10px;
+    gap: 1px;
     text-align: left;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
   }
-  .info a, .info span {
-    display: block;
+  .info > a, .info > span {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     padding: 12px 14px;
     background: #11141b;
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    border: 0;
+    border-radius: 0;
     color: var(--text);
     text-decoration: none;
     font-size: 14px;
     word-break: break-word;
+    transition: background .15s;
   }
-  .info a:hover { border-color: #3a4256; }
+  .info > a:hover { background: #161a23; }
+  .info .icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, rgba(108,140,255,0.2), rgba(255,108,199,0.2));
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .info .field { display: flex; flex-direction: column; min-width: 0; flex: 1; }
   .info .label {
     display: block;
-    font-size: 11px;
+    font-size: 10px;
     color: var(--muted);
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.6px;
     margin-bottom: 2px;
+  }
+  .info .value { word-break: break-word; }
+
+  @media (max-width: 480px) {
+    .card-header { flex-direction: column; text-align: center; gap: 14px; padding: 26px 20px 20px; }
+    .card-body { padding: 18px 18px 20px; }
   }
   .note { color: var(--muted); margin-top: 4px; font-size: 13px; }
 
@@ -206,11 +351,11 @@
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
 
-  footer {
-    text-align: center; color: var(--muted); font-size: 12px;
-    margin-top: 26px;
+  .card-footer-link {
+    text-align: center; margin-top: 18px;
   }
-  footer a { color: var(--muted); }
+  .card-footer-link a { color: var(--muted); font-size: 13px; text-decoration: none; }
+  .card-footer-link a:hover { color: var(--text); }
 
   @media (max-width: 560px) {
     form .grid { grid-template-columns: 1fr; }
@@ -220,11 +365,6 @@
 </head>
 <body>
 <div class="wrap">
-  <header class="brand">
-    <div class="logo"></div>
-    <h1>card2me <small>— digital business cards</small></h1>
-  </header>
-
   <!-- CREATE VIEW -->
   <section id="create-view" class="panel" hidden>
     <h2>Create your card</h2>
@@ -236,6 +376,14 @@
           <label for="firstName">First name</label>
           <input id="firstName" name="firstName" type="text" required />
         </div>
+        <div class="photo-cell">
+          <label for="photo">Photo</label>
+          <div class="photo-picker" title="Click to choose a photo">
+            <div id="photo-preview" class="preview"></div>
+            <input id="photo" name="photo" type="file" accept="image/*" />
+          </div>
+        </div>
+
         <div>
           <label for="lastName">Last name</label>
           <input id="lastName" name="lastName" type="text" />
@@ -273,15 +421,6 @@
           <label for="note">Note</label>
           <textarea id="note" name="note" placeholder="Anything you'd like to add"></textarea>
         </div>
-
-        <div class="full">
-          <label>Photo (optional)</label>
-          <div class="file-row">
-            <div id="photo-preview" class="preview"></div>
-            <input id="photo" name="photo" type="file" accept="image/*" />
-          </div>
-          <div class="note">Small images recommended (kept inside the link).</div>
-        </div>
       </div>
 
       <div class="actions">
@@ -293,30 +432,33 @@
 
   <!-- CARD VIEW -->
   <section id="card-view" class="panel card" hidden>
-    <div id="avatar" class="avatar"></div>
-    <h2 id="fullName" class="name"></h2>
-    <div id="jobTitle" class="title"></div>
-    <div id="companyName" class="company"></div>
-
-    <div class="info" id="info"></div>
-
-    <div class="actions" style="justify-content: center; margin-top: 22px;">
-      <button id="vcf-btn" class="primary">＋ Add to Contacts</button>
-      <button id="share-btn">Copy link</button>
+    <div class="card-header">
+      <span class="card-corner">Contact</span>
+      <div id="avatar" class="avatar"></div>
+      <div class="card-identity">
+        <h2 id="fullName" class="name"></h2>
+        <div id="jobTitle" class="title"></div>
+        <div id="companyName" class="company"></div>
+      </div>
     </div>
 
-    <div class="share">
-      <input id="share-url" readonly />
-    </div>
+    <div class="card-body">
+      <div class="info" id="info"></div>
 
-    <footer>
-      <a href="#" id="create-another">Create another card →</a>
-    </footer>
+      <div class="actions" style="justify-content: center; margin-top: 22px;">
+        <button id="vcf-btn" class="primary">＋ Add to Contacts</button>
+        <button id="share-btn">Copy link</button>
+      </div>
+
+      <div class="share">
+        <input id="share-url" readonly />
+      </div>
+
+      <div class="card-footer-link">
+        <a href="#" id="create-another">Create another card →</a>
+      </div>
+    </div>
   </section>
-
-  <footer>
-    Made with ❤ — share the link, no account needed.
-  </footer>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -422,19 +564,19 @@ function renderCard(c) {
 
   const info = document.getElementById('info');
   info.innerHTML = '';
-  const row = (label, value, href) => {
+  const row = (label, value, href, icon) => {
     if (!value) return;
     const el = href
       ? Object.assign(document.createElement('a'), { href })
       : document.createElement('span');
-    el.innerHTML = `<span class="label">${label}</span>${escHtml(value)}`;
+    el.innerHTML = `<span class="icon">${icon}</span><span class="field"><span class="label">${label}</span><span class="value">${escHtml(value)}</span></span>`;
     info.appendChild(el);
   };
-  row('Phone',   c.phone,   c.phone   ? `tel:${c.phone}` : null);
-  row('Email',   c.email,   c.email   ? `mailto:${c.email}` : null);
-  row('Website', c.website, c.website || null);
-  row('Address', c.address, null);
-  row('Note',    c.note,    null);
+  row('Phone',   c.phone,   c.phone   ? `tel:${c.phone}` : null, '📞');
+  row('Email',   c.email,   c.email   ? `mailto:${c.email}` : null, '✉️');
+  row('Website', c.website, c.website || null, '🌐');
+  row('Address', c.address, null, '📍');
+  row('Note',    c.note,    null, '📝');
 
   document.getElementById('share-url').value = location.href;
 
@@ -462,14 +604,21 @@ function initCreate() {
 
   photoInput.addEventListener('change', async () => {
     const f = photoInput.files?.[0];
-    if (!f) { photoDataUrl = ''; preview.style.backgroundImage = ''; return; }
+    if (!f) {
+      photoDataUrl = '';
+      preview.style.backgroundImage = '';
+      preview.classList.remove('has-photo');
+      return;
+    }
     photoDataUrl = await readFileAsDataURL(f);
     preview.style.backgroundImage = `url(${photoDataUrl})`;
+    preview.classList.add('has-photo');
   });
 
   form.addEventListener('reset', () => {
     photoDataUrl = '';
     preview.style.backgroundImage = '';
+    preview.classList.remove('has-photo');
   });
 
   form.addEventListener('submit', (e) => {
