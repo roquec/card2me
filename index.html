@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>card2me — Digital Business Cards</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171a21;
+    --panel-2: #1f232c;
+    --text: #e8eaf0;
+    --muted: #9aa3b2;
+    --accent: #6c8cff;
+    --accent-2: #8a6cff;
+    --border: #262b36;
+    --shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(108,140,255,0.18), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(138,108,255,0.15), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+  }
+
+  header.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .logo {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: var(--shadow);
+  }
+  .brand h1 {
+    font-size: 20px; margin: 0; letter-spacing: 0.2px;
+  }
+  .brand small { color: var(--muted); margin-left: 6px; }
+
+  .panel {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow);
+  }
+
+  h2 { margin: 0 0 6px; font-size: 22px; }
+  .subtitle { color: var(--muted); margin: 0 0 22px; font-size: 14px; }
+
+  form .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 14px;
+  }
+  form .full { grid-column: 1 / -1; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  input[type=text], input[type=email], input[type=tel], input[type=url], textarea {
+    width: 100%;
+    background: #11141b;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  input:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(108,140,255,0.18);
+  }
+
+  .file-row {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .file-row .preview {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: #11141b; border: 1px solid var(--border);
+    background-size: cover; background-position: center;
+  }
+  input[type=file] { color: var(--muted); font-size: 13px; }
+
+  .actions {
+    margin-top: 24px;
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+  button, .btn {
+    appearance: none;
+    border: 1px solid var(--border);
+    background: #11141b;
+    color: var(--text);
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform .05s ease, border-color .15s, background .15s;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  button:hover, .btn:hover { border-color: #3a4256; }
+  button:active { transform: translateY(1px); }
+  button.primary, .btn.primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 6px 20px rgba(108,140,255,0.35);
+  }
+
+  /* Card view */
+  .card {
+    text-align: center;
+    padding: 36px 28px 28px;
+  }
+  .card .avatar {
+    width: 112px; height: 112px; border-radius: 50%;
+    margin: 0 auto 18px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px; font-weight: 600; color: white;
+    background-size: cover; background-position: center;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .card .name { font-size: 26px; font-weight: 600; margin: 0; }
+  .card .title { color: var(--muted); margin-top: 4px; }
+  .card .company { color: var(--muted); margin-top: 2px; font-size: 14px; }
+
+  .info {
+    margin-top: 22px;
+    display: grid;
+    gap: 10px;
+    text-align: left;
+  }
+  .info a, .info span {
+    display: block;
+    padding: 12px 14px;
+    background: #11141b;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    word-break: break-word;
+  }
+  .info a:hover { border-color: #3a4256; }
+  .info .label {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 2px;
+  }
+  .note { color: var(--muted); margin-top: 4px; font-size: 13px; }
+
+  .share {
+    margin-top: 22px;
+    display: flex; gap: 8px;
+  }
+  .share input {
+    flex: 1;
+    background: #11141b;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+    background: #11141b; color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px 14px; border-radius: 10px;
+    font-size: 13px; opacity: 0; pointer-events: none;
+    transition: opacity .2s, transform .2s;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+
+  footer {
+    text-align: center; color: var(--muted); font-size: 12px;
+    margin-top: 26px;
+  }
+  footer a { color: var(--muted); }
+
+  @media (max-width: 560px) {
+    form .grid { grid-template-columns: 1fr; }
+    .wrap { padding: 28px 14px 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="brand">
+    <div class="logo"></div>
+    <h1>card2me <small>— digital business cards</small></h1>
+  </header>
+
+  <!-- CREATE VIEW -->
+  <section id="create-view" class="panel" hidden>
+    <h2>Create your card</h2>
+    <p class="subtitle">Fill in your details and get a shareable link. No sign-up, no server.</p>
+
+    <form id="card-form" autocomplete="off">
+      <div class="grid">
+        <div>
+          <label for="firstName">First name</label>
+          <input id="firstName" name="firstName" type="text" required />
+        </div>
+        <div>
+          <label for="lastName">Last name</label>
+          <input id="lastName" name="lastName" type="text" />
+        </div>
+
+        <div>
+          <label for="title">Title</label>
+          <input id="title" name="title" type="text" placeholder="e.g. Product Designer" />
+        </div>
+        <div>
+          <label for="company">Company</label>
+          <input id="company" name="company" type="text" />
+        </div>
+
+        <div>
+          <label for="phone">Phone</label>
+          <input id="phone" name="phone" type="tel" placeholder="+1 555 123 4567" />
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" />
+        </div>
+
+        <div class="full">
+          <label for="website">Website</label>
+          <input id="website" name="website" type="url" placeholder="https://example.com" />
+        </div>
+
+        <div class="full">
+          <label for="address">Address</label>
+          <input id="address" name="address" type="text" placeholder="Street, City, Country" />
+        </div>
+
+        <div class="full">
+          <label for="note">Note</label>
+          <textarea id="note" name="note" placeholder="Anything you'd like to add"></textarea>
+        </div>
+
+        <div class="full">
+          <label>Photo (optional)</label>
+          <div class="file-row">
+            <div id="photo-preview" class="preview"></div>
+            <input id="photo" name="photo" type="file" accept="image/*" />
+          </div>
+          <div class="note">Small images recommended (kept inside the link).</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="reset">Clear</button>
+        <button type="submit" class="primary">Create card →</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- CARD VIEW -->
+  <section id="card-view" class="panel card" hidden>
+    <div id="avatar" class="avatar"></div>
+    <h2 id="fullName" class="name"></h2>
+    <div id="jobTitle" class="title"></div>
+    <div id="companyName" class="company"></div>
+
+    <div class="info" id="info"></div>
+
+    <div class="actions" style="justify-content: center; margin-top: 22px;">
+      <button id="vcf-btn" class="primary">＋ Add to Contacts</button>
+      <button id="share-btn">Copy link</button>
+    </div>
+
+    <div class="share">
+      <input id="share-url" readonly />
+    </div>
+
+    <footer>
+      <a href="#" id="create-another">Create another card →</a>
+    </footer>
+  </section>
+
+  <footer>
+    Made with ❤ — share the link, no account needed.
+  </footer>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* ------------ utils ------------ */
+function uuid() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c/4).toString(16)
+  );
+}
+
+function encodeData(obj) {
+  const json = JSON.stringify(obj);
+  // utf-8 safe base64
+  const b64 = btoa(unescape(encodeURIComponent(json)));
+  return b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function decodeData(str) {
+  let b64 = str.replace(/-/g,'+').replace(/_/g,'/');
+  while (b64.length % 4) b64 += '=';
+  const json = decodeURIComponent(escape(atob(b64)));
+  return JSON.parse(json);
+}
+
+function escHtml(s) {
+  return (s||'').replace(/[&<>"']/g, m => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[m]));
+}
+
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+/* ------------ vCard ------------ */
+function buildVCF(c) {
+  const lines = ['BEGIN:VCARD', 'VERSION:3.0'];
+  const first = c.firstName || '';
+  const last  = c.lastName  || '';
+  lines.push(`N:${last};${first};;;`);
+  lines.push(`FN:${[first,last].filter(Boolean).join(' ')}`);
+  if (c.company) lines.push(`ORG:${c.company}`);
+  if (c.title)   lines.push(`TITLE:${c.title}`);
+  if (c.phone)   lines.push(`TEL;TYPE=CELL:${c.phone}`);
+  if (c.email)   lines.push(`EMAIL;TYPE=INTERNET:${c.email}`);
+  if (c.website) lines.push(`URL:${c.website}`);
+  if (c.address) lines.push(`ADR;TYPE=WORK:;;${c.address};;;;`);
+  if (c.note)    lines.push(`NOTE:${c.note.replace(/\n/g,'\\n')}`);
+  if (c.photo && c.photo.startsWith('data:image')) {
+    const m = c.photo.match(/^data:image\/(\w+);base64,(.+)$/);
+    if (m) lines.push(`PHOTO;ENCODING=b;TYPE=${m[1].toUpperCase()}:${m[2]}`);
+  }
+  lines.push('END:VCARD');
+  return lines.join('\r\n');
+}
+
+function downloadVCF(c) {
+  const blob = new Blob([buildVCF(c)], { type: 'text/vcard;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const name = [c.firstName, c.lastName].filter(Boolean).join('_') || 'contact';
+  a.href = url; a.download = `${name}.vcf`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* ------------ views ------------ */
+function show(id) {
+  document.getElementById('create-view').hidden = id !== 'create';
+  document.getElementById('card-view').hidden   = id !== 'card';
+}
+
+function renderCard(c) {
+  const fullName = [c.firstName, c.lastName].filter(Boolean).join(' ') || 'Unnamed';
+  document.title = `${fullName} — card2me`;
+  document.getElementById('fullName').textContent    = fullName;
+  document.getElementById('jobTitle').textContent    = c.title   || '';
+  document.getElementById('companyName').textContent = c.company || '';
+
+  const avatar = document.getElementById('avatar');
+  if (c.photo) {
+    avatar.style.backgroundImage = `url(${c.photo})`;
+    avatar.textContent = '';
+  } else {
+    avatar.style.backgroundImage = '';
+    avatar.textContent = (c.firstName?.[0] || '') + (c.lastName?.[0] || '');
+  }
+
+  const info = document.getElementById('info');
+  info.innerHTML = '';
+  const row = (label, value, href) => {
+    if (!value) return;
+    const el = href
+      ? Object.assign(document.createElement('a'), { href })
+      : document.createElement('span');
+    el.innerHTML = `<span class="label">${label}</span>${escHtml(value)}`;
+    info.appendChild(el);
+  };
+  row('Phone',   c.phone,   c.phone   ? `tel:${c.phone}` : null);
+  row('Email',   c.email,   c.email   ? `mailto:${c.email}` : null);
+  row('Website', c.website, c.website || null);
+  row('Address', c.address, null);
+  row('Note',    c.note,    null);
+
+  document.getElementById('share-url').value = location.href;
+
+  document.getElementById('vcf-btn').onclick   = () => downloadVCF(c);
+  document.getElementById('share-btn').onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(location.href);
+      toast('Link copied');
+    } catch { toast('Copy failed'); }
+  };
+  document.getElementById('create-another').onclick = (e) => {
+    e.preventDefault();
+    location.href = location.pathname;
+  };
+
+  show('card');
+}
+
+/* ------------ create flow ------------ */
+function initCreate() {
+  const form = document.getElementById('card-form');
+  const photoInput = document.getElementById('photo');
+  const preview = document.getElementById('photo-preview');
+  let photoDataUrl = '';
+
+  photoInput.addEventListener('change', async () => {
+    const f = photoInput.files?.[0];
+    if (!f) { photoDataUrl = ''; preview.style.backgroundImage = ''; return; }
+    photoDataUrl = await readFileAsDataURL(f);
+    preview.style.backgroundImage = `url(${photoDataUrl})`;
+  });
+
+  form.addEventListener('reset', () => {
+    photoDataUrl = '';
+    preview.style.backgroundImage = '';
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form).entries());
+    delete data.photo;
+    if (photoDataUrl) data.photo = photoDataUrl;
+
+    const id = uuid();
+    const payload = encodeData(data);
+    // "folder-like" URL: ?c=<guid>#data=<payload>
+    const newUrl = `${location.pathname}?c=${id}#data=${payload}`;
+    // redirect so creator gets the shareable link
+    location.href = newUrl;
+  });
+
+  show('create');
+}
+
+/* ------------ boot ------------ */
+(function boot() {
+  const hash = location.hash || '';
+  const m = hash.match(/(?:^|[#&])data=([^&]+)/);
+  if (m) {
+    try {
+      const data = decodeData(m[1]);
+      renderCard(data);
+      return;
+    } catch (err) {
+      console.error('Invalid card data', err);
+    }
+  }
+  initCreate();
+})();
+</script>
+</body>
+</html>
