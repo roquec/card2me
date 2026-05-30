@@ -575,7 +575,8 @@ function downloadVCF(c) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   const name = [c.firstName, c.lastName].filter(Boolean).join('_') || 'contact';
-  a.href = url; a.download = `${name}.vcf`;
+  a.href = url;
+  //a.download = `${name}.vcf`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
