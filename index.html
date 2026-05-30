@@ -167,8 +167,6 @@
     gap: 10px 12px;
   }
   form .full { grid-column: 1 / -1; }
-  form .photo-cell { grid-row: span 2; display: flex; flex-direction: column; align-items: center; }
-  form .photo-cell label { align-self: center; padding-left: 0px; }
 
   label {
     display: block;
@@ -197,45 +195,6 @@
   }
   input:hover:not(:focus), textarea:hover:not(:focus) {
     border-color: #3a4256;
-  }
-
-  /* Photo picker: the preview circle IS the button */
-  .photo-picker {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    min-height: 100px;
-    display: flex; align-items: center; justify-content: center;
-    grid-row: span 2;
-  }
-  .photo-picker input[type=file] {
-    position: absolute; inset: 0;
-    opacity: 0; cursor: pointer;
-    width: 100%; height: 100%;
-    z-index: 2;
-  }
-  .photo-picker .preview {
-    width: 100px; height: 100px; border-radius: 50%;
-    background: #11141b;
-    border: 1px dashed rgba(108,140,255,0.5);
-    background-size: cover; background-position: center;
-    position: relative;
-    transition: transform .2s, border-color .2s, box-shadow .2s;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden;
-  }
-  .photo-picker .preview::after {
-    content: "📷";
-    font-size: 32px; opacity: .7;
-    transition: transform .3s;
-    margin-top: -14px
-  }
-  .photo-picker .preview.has-photo::after { content: ""; }
-  .photo-picker:hover .preview {
-    border-color: var(--accent);
-    border-style: solid;
-    box-shadow: 0 0 0 4px rgba(108,140,255,0.15);
   }
 
   .actions {
@@ -425,13 +384,6 @@
           <label for="firstName">First name</label>
           <input id="firstName" name="firstName" type="text" required />
         </div>
-        <div class="photo-cell">
-          <label for="photo">Photo</label>
-          <div class="photo-picker" title="Click to choose a photo">
-            <div id="photo-preview" class="preview"></div>
-            <input id="photo" name="photo" type="file" accept="image/*" />
-          </div>
-        </div>
 
         <div>
           <label for="lastName">Last name</label>
@@ -563,10 +515,6 @@ function buildVCF(c) {
   if (c.website) lines.push(`URL:${c.website}`);
   if (c.address) lines.push(`ADR;TYPE=WORK:;;${c.address};;;;`);
   if (c.note)    lines.push(`NOTE:${c.note.replace(/\n/g,'\\n')}`);
-  if (c.photo && c.photo.startsWith('data:image')) {
-    const m = c.photo.match(/^data:image\/(\w+);base64,(.+)$/);
-    if (m) lines.push(`PHOTO;ENCODING=b;TYPE=${m[1].toUpperCase()}:${m[2]}`);
-  }
   lines.push('END:VCARD');
   return lines.join('\r\n');
 }
@@ -601,13 +549,8 @@ function renderCard(c) {
   document.getElementById('companyName').textContent = c.company || '';
 
   const avatar = document.getElementById('avatar');
-  if (c.photo) {
-    avatar.style.backgroundImage = `url(${c.photo})`;
-    avatar.textContent = '';
-  } else {
-    avatar.style.backgroundImage = '';
-    avatar.textContent = (c.firstName?.[0] || '') + (c.lastName?.[0] || '');
-  }
+  avatar.style.backgroundImage = '';
+  avatar.textContent = (c.firstName?.[0] || '') + (c.lastName?.[0] || '');
 
   const info = document.getElementById('info');
   info.innerHTML = '';
@@ -645,35 +588,10 @@ function renderCard(c) {
 /* ------------ create flow ------------ */
 function initCreate() {
   const form = document.getElementById('card-form');
-  const photoInput = document.getElementById('photo');
-  const preview = document.getElementById('photo-preview');
-  let photoDataUrl = '';
-
-  photoInput.addEventListener('change', async () => {
-    const f = photoInput.files?.[0];
-    if (!f) {
-      photoDataUrl = '';
-      preview.style.backgroundImage = '';
-      preview.classList.remove('has-photo');
-      return;
-    }
-    photoDataUrl = await readFileAsDataURL(f);
-    preview.style.backgroundImage = `url(${photoDataUrl})`;
-    preview.classList.add('has-photo');
-  });
-
-  form.addEventListener('reset', () => {
-    photoDataUrl = '';
-    preview.style.backgroundImage = '';
-    preview.classList.remove('has-photo');
-  });
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(form).entries());
-    delete data.photo;
-    if (photoDataUrl) data.photo = photoDataUrl;
-
     const payload = encodeData(data);
     const newUrl = `${location.pathname}?data=${payload}`;
     // redirect so creator gets the shareable link
