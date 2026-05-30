@@ -570,12 +570,36 @@ function buildVCF(c) {
   return lines.join('\r\n');
 }
 
-function downloadVCF(c) {
+async function downloadVCF(c) {
 
-  const vcf = encodeURIComponent(buildVCF(c));
-  const url = `data:text/vcard;charset=utf-8,${vcf}`;
+  const vcf = buildVCF(c);
+  const vcardBlob = new Blob([vcf], { type: "text/vcard;charset=utf-8" });
+  const fileName = "contact.vcf";
 
-  window.location.href = url;
+  // 1. Try Web Share API (Best for Mobile)
+  if (navigator.share && navigator.canShare) {
+    const file = new File([vcardBlob], fileName, { type: "text/vcard" });
+    if (navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: "Contact Info",
+          text: "Add to contacts"
+        });
+        return; // Success
+      } catch (err) {
+        console.error("Share failed:", err);
+      }
+    }
+  }
+
+  // 2. Fallback: Standard Download (Best for Desktop & Older Android)
+  const link = document.createElement("a");
+  link.href = window.URL.createObjectURL(vcardBlob);
+  link.setAttribute("download", fileName);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
   /*
   const vcf = buildVCF(c);
   const blob = new Blob([vcf], { type: "text/vcard" });
@@ -637,7 +661,7 @@ function renderCard(c) {
 
   document.getElementById('share-url').value = location.href;
 
-  document.getElementById('vcf-btn').onclick   = () => downloadVCF(c);
+  document.getElementById('vcf-btn').onclick   = async () => downloadVCF(c);
   document.getElementById('share-btn').onclick = async () => {
     try {
       await navigator.clipboard.writeText(location.href);
