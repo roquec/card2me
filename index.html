@@ -512,13 +512,6 @@
 
 <script>
 /* ------------ utils ------------ */
-function uuid() {
-  if (crypto.randomUUID) return crypto.randomUUID();
-  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c/4).toString(16)
-  );
-}
-
 function encodeData(obj) {
   const json = JSON.stringify(obj);
   // utf-8 safe base64
@@ -676,10 +669,8 @@ function initCreate() {
     delete data.photo;
     if (photoDataUrl) data.photo = photoDataUrl;
 
-    const id = uuid();
     const payload = encodeData(data);
-    // "folder-like" URL: ?c=<guid>#data=<payload>
-    const newUrl = `${location.pathname}?c=${id}#data=${payload}`;
+    const newUrl = `${location.pathname}?data=${payload}`;
     // redirect so creator gets the shareable link
     location.href = newUrl;
   });
@@ -689,11 +680,16 @@ function initCreate() {
 
 /* ------------ boot ------------ */
 (function boot() {
-  const hash = location.hash || '';
-  const m = hash.match(/(?:^|[#&])data=([^&]+)/);
-  if (m) {
+  const params = new URLSearchParams(location.search);
+  let payload = params.get('data');
+  // Backwards compatibility: also accept legacy #data=... links
+  if (!payload) {
+    const m = (location.hash || '').match(/(?:^|[#&])data=([^&]+)/);
+    if (m) payload = m[1];
+  }
+  if (payload) {
     try {
-      const data = decodeData(m[1]);
+      const data = decodeData(payload);
       renderCard(data);
       return;
     } catch (err) {
