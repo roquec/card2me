@@ -415,7 +415,7 @@
   <!-- CREATE VIEW -->
   <header id="create-hero" class="create-hero" hidden>
     <h1>card2me</h1>
-    <p class="tagline">Create a digital contact card in seconds — just a shareable link, no sign-up, no server.</p>
+    <p class="tagline">Create a digital contact card in seconds — just a shareable link, no sign-up, no server</p>
   </header>
   <section id="create-view" class="panel" hidden>
     <form id="card-form" autocomplete="off">
@@ -571,6 +571,12 @@ function buildVCF(c) {
 }
 
 function downloadVCF(c) {
+
+  const vcf = encodeURIComponent(buildVCF(c));
+  const url = `data:text/vcard;charset=utf-8,${vcf}`;
+
+  window.location.href = url;
+  /*
   const vcf = buildVCF(c);
   const blob = new Blob([vcf], { type: "text/vcard" });
   const url = URL.createObjectURL(blob);
@@ -582,10 +588,11 @@ function downloadVCF(c) {
   a.style.display = "none";
 
   document.body.appendChild(a);
+  console.log(a);
   a.click();
   document.body.removeChild(a);
 
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);*/
 }
 
 /* ------------ views ------------ */
