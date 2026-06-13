@@ -422,6 +422,15 @@
           <label for="note">Note</label>
           <textarea id="note" name="note" placeholder="Anything you'd like to add"></textarea>
         </div>
+
+        <div class="full">
+          <label for="photo">Profile picture URL</label>
+          <input id="photo" name="photo" type="url" placeholder="https://example.com/photo.jpg" />
+          <div id="photo-preview-wrap" style="display:none; margin-top:10px; text-align:center;">
+            <img id="photo-preview" src="" alt="Profile picture preview" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--border);" />
+          </div>
+          <div id="photo-error" style="display:none; color:#ff6cc7; font-size:12px; margin-top:4px; padding-left:12px;">Image could not be loaded. Please check the URL.</div>
+        </div>
       </div>
 
       <div class="actions">
@@ -550,7 +559,20 @@ function renderCard(c) {
 
   const avatar = document.getElementById('avatar');
   avatar.style.backgroundImage = '';
-  avatar.textContent = (c.firstName?.[0] || '') + (c.lastName?.[0] || '');
+  avatar.textContent = '';
+  if (c.photo) {
+    const img = document.createElement('img');
+    img.src = c.photo;
+    img.alt = fullName;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;';
+    img.onerror = () => {
+      avatar.removeChild(img);
+      avatar.textContent = (c.firstName?.[0] || '') + (c.lastName?.[0] || '');
+    };
+    avatar.appendChild(img);
+  } else {
+    avatar.textContent = (c.firstName?.[0] || '') + (c.lastName?.[0] || '');
+  }
 
   const info = document.getElementById('info');
   info.innerHTML = '';
@@ -588,6 +610,39 @@ function renderCard(c) {
 /* ------------ create flow ------------ */
 function initCreate() {
   const form = document.getElementById('card-form');
+
+  const photoInput = document.getElementById('photo');
+  const photoPreviewWrap = document.getElementById('photo-preview-wrap');
+  const photoPreview = document.getElementById('photo-preview');
+  const photoError = document.getElementById('photo-error');
+
+  let photoDebounce;
+  photoInput.addEventListener('input', () => {
+    clearTimeout(photoDebounce);
+    const url = photoInput.value.trim();
+    if (!url) {
+      photoPreviewWrap.style.display = 'none';
+      photoError.style.display = 'none';
+      return;
+    }
+    photoDebounce = setTimeout(() => {
+      photoPreview.src = url;
+      photoPreview.onload = () => {
+        photoPreviewWrap.style.display = 'block';
+        photoError.style.display = 'none';
+      };
+      photoPreview.onerror = () => {
+        photoPreviewWrap.style.display = 'none';
+        photoError.style.display = 'block';
+      };
+    }, 600);
+  });
+
+  form.addEventListener('reset', () => {
+    photoPreviewWrap.style.display = 'none';
+    photoError.style.display = 'none';
+    photoPreview.src = '';
+  });
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
